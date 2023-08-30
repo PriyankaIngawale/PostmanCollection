@@ -1,0 +1,451 @@
+{
+	"info": {
+		"_postman_id": "88d022e2-31c3-4b25-933a-ae037ebfe06f",
+		"name": "Employee_Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28337388"
+	},
+	"item": [
+		{
+			"name": "Get all Employee Details",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get the First Employee ID\", function () {\r",
+							"\r",
+							"    //collecting the response body in json\r",
+							"    var resp = pm.response.json().data;\r",
+							"\r",
+							"    // get first record from response data attribute\r",
+							"    var firstEmpId = resp[0].id\r",
+							"    \r",
+							"    //Showcasing different types of variable\r",
+							"    pm.collectionVariables.set(\"firstEmpId\",firstEmpId);\r",
+							"    pm.globals.set(\"firstEmpId\", firstEmpId)\r",
+							"    pm.environment.set(\"firstEmpId\", firstEmpId)\r",
+							"\r",
+							"    // Looping through the response to verify attributes\r",
+							"    for(ele in resp)\r",
+							"    {\r",
+							"        //printing all the employee ids from the response\r",
+							"        console.log(ele.id)\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"setTimeout(function(){},5000)\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){},5000)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/employees",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"employees"
+					]
+				},
+				"description": "### **Different Types of Variables:**\n\n- Environment\n- Global\n- Collection\n    \n\n### **Validation:**\n\n- Status Validation\n- Attributes validations\n- For Loop\n- Storing Data"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Employee",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){},10000)\r",
+							"\r",
+							"let timestamps = new Date().toString();\r",
+							"timestamps = timestamps.replace(/[^a-zA-Z]/g,'_');\r",
+							"\r",
+							"randomName = \"randomName\" + \" \" + timestamps\r",
+							"randomSalary = Math.floor((Math.random() * 5000) + 1000);\r",
+							"randomAge= Math.floor((Math.random() * 100) + 1);\r",
+							"\r",
+							"pm.collectionVariables.set(\"randomName\",randomName)\r",
+							"pm.collectionVariables.set(\"randomSalary\",randomSalary)\r",
+							"pm.collectionVariables.set(\"randomAge\",randomAge)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Capture the reponse for comparison\", function () {\r",
+							"    \r",
+							"    //collecting the response body in json\r",
+							"    var resp = pm.response.json().data;\r",
+							"\r",
+							"    // get first record from response data attribute\r",
+							"    var createdEmpId = resp.id\r",
+							"    pm.collectionVariables.set(\"createdEmpId\",createdEmpId)\r",
+							"\r",
+							"    //exporting the response as part of globals\r",
+							"    pm.globals.set(\"globalExportResp\",JSON.stringify(resp))\r",
+							"\r",
+							"    });\r",
+							"\r",
+							"    pm.setTimeout(function(){}, [5000]);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{randomName}}\",\r\n    \"salary\": \"{{randomSalary}}\",\r\n    \"age\": \"{{randomAge}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/create",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"create"
+					]
+				},
+				"description": "### Showcasing various features across requestBody and Prerequest usage\n\n- Request Body\n- Prerequest to updating the request body\n    \n\n### Javascript functions\n\n- string - replacing the special characters\n- math - generating random numbers\n    \n\n### Exporting Created record as part of Globals FIle post executing from newman:\n\n- Creating Global variables to export outside post execution"
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Created Employee Record",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify record is found\", function () {\r",
+							"    //expect exact match\r",
+							"    pm.expect(pm.response.json().status).equals(\"success\")\r",
+							"\r",
+							"    //partial test assertion\r",
+							"    pm.expect(pm.response.json().message).contains(\"Record has been fetched.\")\r",
+							"\r",
+							"    //null comparison\r",
+							"    pm.expect(pm.response.json().data).to.be.null\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){},15000)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/employee/{{createdEmpId}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"employee",
+						"{{createdEmpId}}"
+					]
+				},
+				"description": "### Showcasing various types of chai assertions on response verification:\n\n- equals : Exact Match\n- contains : Partial match\n- to.be.null : Null comparison"
+			},
+			"response": []
+		},
+		{
+			"name": "Update the Created Record",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){},20000)\r",
+							"\r",
+							"randomSalary = Math.floor((Math.random() * 5000) + 1000);\r",
+							"\r",
+							"pm.collectionVariables.set(\"randomSalary\",randomSalary)\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"test\",\r\n    \"salary\": \"{{randomSalary}}\",\r\n    \"age\": \"23\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/update/{{createdEmpId}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"update",
+						"{{createdEmpId}}"
+					]
+				},
+				"description": "### Showcasing different request method - PUT\n\n- Updating the existing record\n- using pre-request section for dynamic record update"
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Employee Record updated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Get the First Employee ID\", function () {\r",
+							"\r",
+							"    //collecting the response body in json\r",
+							"    var resp = pm.response.json().data;\r",
+							"\r",
+							"    // Looping through the response to verify attributes\r",
+							"    for(ele in resp)\r",
+							"    {\r",
+							"        if(ele.id == pm.collectionVariables.get(\"createdEmpId\"))\r",
+							"        {\r",
+							"            pm.expect(ele.employee_salary).equal(pm.collectionVariables.get(\"randomSalary\"))\r",
+							"            break;\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){},25000)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/employees",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"employees"
+					]
+				},
+				"description": "### Showcasing validation on updated records\n\n- Usage of collection variables\n- Looping through response\n- applying conditional statement to find the record\n- comparing the attributes value"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete the created Employee",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify record is deleted\", function () {\r",
+							"    //expect exact match\r",
+							"    pm.expect(pm.response.json().status).equals(\"success\")\r",
+							"\r",
+							"    //partial test assertion\r",
+							"    pm.expect(pm.response.json().message).contains(\"Record has been deleted\")\r",
+							"\r",
+							"    //null comparison\r",
+							"    pm.expect(pm.response.json().data).equals(pm.collectionVariables.get(\"createdEmpId\"))\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){},35000)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/delete/{{createdEmpId}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"delete",
+						"{{createdEmpId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Deleted Employee Record",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"verify records should not found\", function () {\r",
+							"\r",
+							"    //collecting the response body in json\r",
+							"    var resp = pm.response.json().data;\r",
+							"    var userFound = false\r",
+							"    // Looping through the response to verify attributes\r",
+							"    for(ele in resp)\r",
+							"    {\r",
+							"        if(ele.id == pm.collectionVariables.get(\"createdEmpId\"))\r",
+							"        {\r",
+							"            userFound = true\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(userFound).equals(false)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){},45000)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/employee/{{createdEmpId}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"employee",
+						"{{createdEmpId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "randomName",
+			"value": ""
+		},
+		{
+			"key": "randomSalary",
+			"value": ""
+		},
+		{
+			"key": "randomAge",
+			"value": ""
+		},
+		{
+			"key": "createdEmpId",
+			"value": ""
+		},
+		{
+			"key": "firstEmpId",
+			"value": ""
+		}
+	]
+}
